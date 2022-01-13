@@ -1,0 +1,89 @@
+/*******************************************************************************************
+
+                                 Generating a Random Walk
+                     Code to simulate the stochastic process in 1-D
+                              Nishtha Sharma RA2111019010059
+
+********************************************************************************************/
+#include<stdio.h>
+#include<math.h>
+int rand(int r0, int a, int m, int c)
+{
+    int r1=(a*r0+c)%m;
+    return r1;
+}
+void randomNos(int r0, int a, int m, int c, int n, int x[n])
+{
+    int r1=rand(r0,a,m,c);
+    int i;
+    for(i=0;i<n;i++)
+    {
+        x[i]=r1;
+        r1=rand(r1,a,m,c);
+    }
+}
+int coinTossSingle(double r)
+{
+    if(r>0.5)
+        return 1;
+    else if(r<0.5)
+        return 0;   
+}
+void coinToss(int r0, int a, int m, int c, int n, int results[n])
+{
+    int randNos[n];
+    randomNos(r0, a, m, c, n, randNos);
+    //Renormalize to 0 to 1
+    int i;
+    double randNosNew[n];
+    for(i=0;i<n;i++)
+        randNosNew[i]=(double)randNos[i]/(m-1);
+    for(i=0;i<n;i++)
+        results[i]=coinTossSingle(randNosNew[i]);   
+}
+void main()
+{
+    int a, m, c, r0, n;
+    printf("Enter the value of a:\n");
+    scanf("%d",&a);
+    printf("Enter the value of m:\n");
+    scanf("%d",&m);
+    printf("Enter the value of c:\n");
+    scanf("%d",&c);
+    printf("Enter the value of r0(initial):\n");
+    scanf("%d",&r0);
+    printf("Enter the no. of steps require:\n");
+    scanf("%d",&n);
+    int tossResults[n];
+    coinToss(r0, a, m, c, n, tossResults);
+    int i;
+    //Step-size
+    double h=1;
+    double x0=0,origin=x0;
+    double x1;
+    //Array to store the position of the random walker at the ith step
+    double x[n];
+    for(i=0;i<n;i++)
+    {
+        if(tossResults[i]==1)
+        {
+            //Heads=>Move right
+            x1=x0+h;
+        } else
+        {
+            //Tails=>Move left
+            x1=x0-h;    
+        }
+        //Store the position at the ith step in array x[i]
+        x[i]=x1;
+        x0=x1;
+    }
+    //Plot the random Walk (Trajectory)
+    FILE *fp=NULL;
+    fp=fopen("randomWalk1.txt","w");
+    for(i=0;i<n;i++){
+        fprintf(fp,"%d\t%lf\n",i+1,x[i]);
+    }
+    double dist=x1-origin;
+    printf("\nThe distance travelled is:\n%lf",dist);
+}
